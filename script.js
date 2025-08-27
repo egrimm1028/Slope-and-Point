@@ -31,7 +31,7 @@ function isPointOnLine(point, line) {
 function renderQuestion(line, point) {
     const questionDiv = document.getElementById('question');
     const lineLatex = `y = ${line.m}x ${line.b >= 0 ? '+' : ''} ${line.b}`;
-    const pointLatex = `(${point.x},\;${point.y})`;
+    const pointLatex = `(${point.x},\,${point.y})`;
     questionDiv.innerHTML = '';
     const latexHTML = `<span id="lineLatex"></span> <br> <span id="pointLatex"></span>`;
     questionDiv.innerHTML = latexHTML;
@@ -43,7 +43,7 @@ function renderQuestion(line, point) {
 function renderSolution(line, point, correct) {
     const solutionDiv = document.getElementById('solution');
     const lineLatex = `y = ${line.m}x ${line.b >= 0 ? '+' : ''} ${line.b}`;
-    const pointLatex = `(${point.x},\;${point.y})`;
+    const pointLatex = `(${point.x},\,${point.y})`;
     const calcLatex = `y = ${line.m} \times ${point.x} ${line.b >= 0 ? '+' : ''} ${line.b} = ${line.m * point.x + line.b}`;
     const answerLatex = correct ? 'Yes, the point is on the line.' : 'No, the point is not on the line.';
     solutionDiv.innerHTML = `
@@ -97,7 +97,20 @@ let currentLine, currentPoint, correctAnswer;
 
 function newQuestion() {
     currentLine = generateLine();
-    currentPoint = generatePoint();
+    // 50% chance to generate a point on the line
+    if (Math.random() < 0.5) {
+        // Pick a random x, calculate y so point is on the line
+        const x = randInt(-8, 8);
+        const y = currentLine.m * x + currentLine.b;
+        currentPoint = { x, y };
+    } else {
+        // Generate a random point, may or may not be on the line
+        let pt;
+        do {
+            pt = generatePoint();
+        } while (isPointOnLine(pt, currentLine)); // ensure not on line
+        currentPoint = pt;
+    }
     correctAnswer = isPointOnLine(currentPoint, currentLine);
     renderQuestion(currentLine, currentPoint);
     document.getElementById('solution').innerHTML = '';
